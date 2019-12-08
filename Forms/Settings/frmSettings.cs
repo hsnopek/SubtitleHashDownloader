@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SubtitleDownloader.Helpers;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -31,6 +32,9 @@ namespace SubtitleDownloader.Forms.Settings
 
         private void Settings_Load(object sender, EventArgs e)
         {
+            WindowManager.SetTopMost(this.Handle);
+
+
             if (!string.IsNullOrEmpty(Properties.Settings.Default.DefaultLanguage))
                 listBoxLanguages.SelectedItem = Properties.Settings.Default.DefaultLanguage;
             else

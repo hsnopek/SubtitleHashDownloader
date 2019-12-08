@@ -5,6 +5,7 @@ using SubtitleDownloader.Data.RESTClient;
 using SubtitleDownloader.Forms.ChooseSubtitle;
 using SubtitleDownloader.Forms.Search;
 using SubtitleDownloader.Forms.Settings;
+using SubtitleDownloader.Helpers;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -12,7 +13,6 @@ using System.Net;
 using System.Net.Sockets;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using System.Runtime.InteropServices;
 
 namespace SubtitleDownloader
 {
@@ -27,7 +27,6 @@ namespace SubtitleDownloader
             InitializeComponent();
             restClient = new RestClient();
             this.arguments = arguments;
-
         }
 
         private void linkLabel1_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
@@ -38,6 +37,7 @@ namespace SubtitleDownloader
 
         private void Main_Load(object sender, EventArgs e)
         {
+            WindowManager.SetTopMost(this.Handle);
         }
 
         private void btnFilter_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)

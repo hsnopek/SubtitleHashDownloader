@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json.Linq;
 using SubtitleDownloader.Data.Model;
 using SubtitleDownloader.Data.RESTClient;
+using SubtitleDownloader.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -36,6 +37,8 @@ namespace SubtitleDownloader.Forms.Search
 
         private void Search_Load(object sender, EventArgs e)
         {
+            WindowManager.SetTopMost(this.Handle);
+
             if (!string.IsNullOrEmpty(etTitle.Text))
                 btnSearch.PerformClick();
         }

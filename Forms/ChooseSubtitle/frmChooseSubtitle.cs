@@ -1,5 +1,6 @@
 ﻿using SubtitleDownloader.Data.Model;
 using SubtitleDownloader.Data.RESTClient;
+using SubtitleDownloader.Helpers;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -20,6 +21,9 @@ namespace SubtitleDownloader.Forms.ChooseSubtitle
         public frmChooseSubtitle(RestClient client, List<JSONResponse> responseList)
         {
             InitializeComponent();
+
+            WindowManager.SetTopMost(this.Handle);
+
 
             this.client = client;
             this.responseList = responseList;
