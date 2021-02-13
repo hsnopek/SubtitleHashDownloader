@@ -13,7 +13,7 @@ namespace SubtitleDownloader.Data.RESTClient
 {
     public class RestClient
     {
-        readonly string baseUrl = "https://rest.opensubtitles.org/search/";
+        readonly string baseUrl = "http://rest.opensubtitles.org/search/";
 
         public RestClient() { }
 
