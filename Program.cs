@@ -1,4 +1,7 @@
-﻿using System;
+﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using SubtitleDownloader.Data.Client;
+using System;
 using System.Linq;
 using System.Threading;
 using System.Windows.Forms;
@@ -25,9 +28,24 @@ namespace SubtitleDownloader
 
             try
             {
-                Application.EnableVisualStyles();
-                Application.SetCompatibleTextRenderingDefault(false);
-                Application.Run(new Main(args));
+
+                var builder = new HostBuilder()
+                .ConfigureServices((hostContext, services) =>
+                {
+                    services.AddSingleton<Main>();
+                    services.AddSingleton<ISubtitleClient, OpenSubtitlesClient>();
+                });
+                var host = builder.Build();
+
+                using (var serviceScope = host.Services.CreateScope())
+                {
+
+                    Application.EnableVisualStyles();
+                    Application.SetCompatibleTextRenderingDefault(false);
+
+                    var mainForm = serviceScope.ServiceProvider.GetRequiredService<Main>();
+                    Application.Run(mainForm);
+                }
             }
             finally { mutex.ReleaseMutex(); }
         }

@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SubtitleDownloader.Helpers
+namespace SubtitleDownloader.Common.Util
 {
     public static class MovieHasher
     {

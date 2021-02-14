@@ -1,14 +1,16 @@
 ﻿using Microsoft.Win32;
 using Newtonsoft.Json.Linq;
+using SubtitleDownloader.Common;
+using SubtitleDownloader.Common.Util;
+using SubtitleDownloader.Data.Client;
 using SubtitleDownloader.Data.Model;
-using SubtitleDownloader.Data.RESTClient;
 using SubtitleDownloader.Forms.ChooseSubtitle;
 using SubtitleDownloader.Forms.Search;
 using SubtitleDownloader.Forms.Settings;
-using SubtitleDownloader.Helpers;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading.Tasks;
@@ -18,15 +20,12 @@ namespace SubtitleDownloader
 {
     public partial class Main : Form
     {
-        RestClient restClient;
-        string path = @"SOFTWARE\Microsoft\Windows\CurrentVersion\Run";
-        public String[] arguments;
+        readonly ISubtitleClient subtitleClient;        
 
-        public Main(String[] arguments)
+        public Main(ISubtitleClient subtitleClient)
         {
+            this.subtitleClient = subtitleClient;
             InitializeComponent();
-            restClient = new RestClient();
-            this.arguments = arguments;
         }
 
         private void linkLabel1_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
@@ -42,7 +41,7 @@ namespace SubtitleDownloader
 
         private void btnFilter_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
-            frmSearch searchForm = new frmSearch(restClient);
+            frmSearch searchForm = new frmSearch(subtitleClient);
             searchForm.ShowDialog();
         }
 
@@ -65,36 +64,45 @@ namespace SubtitleDownloader
             {
                 foreach (string file in files)
                 {
-                    byte[] moviehash = Helpers.MovieHasher.ComputeMovieHash(file);
-                    string hexString = Helpers.MovieHasher.ToHexadecimal(moviehash);
+                    byte[] moviehash = MovieHasher.ComputeMovieHash(file);
+                    string hexString = MovieHasher.ToHexadecimal(moviehash);
 
                     string languageCode = Language.GetLanguageCode(Properties.Settings.Default.DefaultLanguage);
-                    string json = restClient.DownloadSubtitleByHash(hexString, languageCode);
+                    List<Subtitle> subtitleList = subtitleClient.DownloadSubtitleByHash(hexString, languageCode);   // Svi rezultati pretrage za odabrani fajl
 
-                    FileInfo fileInfo = new FileInfo(file);
-                    JArray subtitleArray = JArray.Parse(json);
+                    FileInfo selectedFile = new FileInfo(file);
 
-                    if (subtitleArray != null && subtitleArray.Count > 0)
+                    if (subtitleList != null && subtitleList.Count > 0)
                     {
                         if (Properties.Settings.Default.IFeelLucky) // Dohvati samo prvi rezultat
-                            DownloadFirstResult(fileInfo, subtitleArray);
-                        else
                         {
-                            var responseList = AddFilesToList(fileInfo, subtitleArray); // Dohvati sve rezultate i proslijedi ih u novu formu
-                            using (frmChooseSubtitle frmChooseSubtitle = new frmChooseSubtitle(restClient, responseList)) frmChooseSubtitle.ShowDialog();
+                            Subtitle subtitle = subtitleList.FirstOrDefault();
+                            MapFileInfoToSubtitle(selectedFile, subtitle);
+                            DownloadFirstResultOnly(subtitle);
+                        }
+                        else // Dohvati sve rezultate i proslijedi ih u novu formu
+                        {
+                            subtitleList.ForEach( item => { 
+                                MapFileInfoToSubtitle(selectedFile, item);
+                            });
+
+                            using (frmChooseSubtitle frmChooseSubtitle = new frmChooseSubtitle(subtitleList))
+                            {
+                                frmChooseSubtitle.ShowDialog();
+                            }
                         }
                     }
                     else
                     {
-                        if (MessageBox.Show("Pretraga po hash-u nije pronašla niti jedan rezultat za datoteku:\n\n" + fileInfo.Name + 
+                        if (MessageBox.Show("Pretraga po hash-u nije pronašla niti jedan rezultat za datoteku:\n\n" + selectedFile.Name + 
                             "\n\nŽelite li pretražiti po pojmu?", "Info", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                         {
-                            using (frmSearch frmSearch = new frmSearch(restClient))
+                            using (frmSearch frmSearch = new frmSearch(subtitleClient))
                             {
                                 frmSearch.Text = file;
-                                frmSearch.fromMain = true;
-                                frmSearch.fromMainInitialDirectory = fileInfo.Directory.ToString();
-                                frmSearch.etTitle.Text = Path.GetFileNameWithoutExtension(fileInfo.Name);
+                                frmSearch.FromMain = true;
+                                frmSearch.FromMainInitialDirectory = selectedFile.Directory.ToString();
+                                frmSearch.etTitle.Text = Path.GetFileNameWithoutExtension(selectedFile.Name);
                                 frmSearch.ShowDialog();
                             }
                         }
@@ -107,37 +115,15 @@ namespace SubtitleDownloader
             }
         }
 
-        private void DownloadFirstResult(FileInfo fileInfo, JArray subtitleArray)
+        private void DownloadFirstResultOnly(Subtitle subtitle)
         {
-            JSONResponse responseModel = GetResponseModel(fileInfo, subtitleArray.First);
-            restClient.DownloadFile(responseModel);
+            FileHelper.DownloadFile(subtitle);
         }
 
-        private static List<JSONResponse> AddFilesToList(FileInfo fileInfo, JArray subtitleArray)
+        private void MapFileInfoToSubtitle(FileInfo fileInfo, Subtitle subtitle)
         {
-            List<JSONResponse> responseList = new List<JSONResponse>();
-            JSONResponse responseModel = null;
-
-            foreach (var item in subtitleArray)
-            {
-                responseModel = GetResponseModel(fileInfo, item);
-                responseList.Add(responseModel);
-            }
-
-            return responseList;
-        }
-
-        private static JSONResponse GetResponseModel(FileInfo fileInfo, JToken subtitleNode)
-        {
-            return new JSONResponse()
-            {
-                MovieName = subtitleNode["MovieName"].ToString(),
-                MovieByteSize = (long)subtitleNode["MovieByteSize"],
-                SubDownloadLink = subtitleNode["SubDownloadLink"].ToString(),
-                SubFileName = subtitleNode["SubFileName"].ToString(),
-                FileName = fileInfo.Name + ".srt",
-                ParentDirectoryPath = fileInfo.DirectoryName
-            };
+            subtitle.FileName = fileInfo.Name + ".srt";
+            subtitle.ParentDirectoryPath = fileInfo.DirectoryName;
         }
 
         private void MnuOpen_Click(object sender, EventArgs e)
@@ -184,7 +170,7 @@ namespace SubtitleDownloader
 
         private void MnuStartWithWindows_Click(object sender, EventArgs e)
         {
-            RegistryKey key = Registry.CurrentUser.OpenSubKey(path, true);
+            RegistryKey key = Registry.CurrentUser.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Run", true);
             if (key.GetValue("SubtitleDownloader") == null)
                 key.SetValue("SubtitleDownloader", Application.ExecutablePath.ToString());
             else
@@ -198,7 +184,7 @@ namespace SubtitleDownloader
         {
             if (e.Button == MouseButtons.Right)
             {
-                RegistryKey key = Registry.CurrentUser.OpenSubKey(path, true);
+                RegistryKey key = Registry.CurrentUser.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Run", true);
 
                 if (key.GetValue("SubtitleDownloader") == null)
                     mnuStartWithWindows.Checked = false;
@@ -209,7 +195,7 @@ namespace SubtitleDownloader
 
         private void Main_Shown(object sender, EventArgs e)
         {
-            RegistryKey key = Registry.CurrentUser.OpenSubKey(path, true);
+            RegistryKey key = Registry.CurrentUser.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Run", true);
 
             if (key.GetValue("SubtitleDownloader") != null)
                 Hide();

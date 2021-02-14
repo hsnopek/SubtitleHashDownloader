@@ -1,32 +1,20 @@
-﻿using SubtitleDownloader.Data.Model;
-using SubtitleDownloader.Data.RESTClient;
-using SubtitleDownloader.Helpers;
-using System;
+﻿using SubtitleDownloader.Common.Util;
+using SubtitleDownloader.Data.Client;
+using SubtitleDownloader.Data.Model;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data;
-using System.Drawing;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace SubtitleDownloader.Forms.ChooseSubtitle
 {
     public partial class frmChooseSubtitle : Form
     {
-        RestClient client;
-        List<JSONResponse> responseList;
 
-        public frmChooseSubtitle(RestClient client, List<JSONResponse> responseList)
+        public frmChooseSubtitle(List<Subtitle> responseList)
         {
             InitializeComponent();
-
             WindowManager.SetTopMost(this.Handle);
-
-
-            this.client = client;
-            this.responseList = responseList;
 
             dataGridView1.DataSource = responseList;
 
@@ -53,10 +41,7 @@ namespace SubtitleDownloader.Forms.ChooseSubtitle
         {
             if (dataGridView1.CurrentCell.OwningColumn.Name == "btnDownload")
             {
-                string link = dataGridView1.CurrentRow.Cells["SubDownloadLink"].Value.ToString();
-
-                this.client.DownloadFile(responseList.Where(o => o.SubDownloadLink == link).FirstOrDefault());
-
+                FileHelper.DownloadFile((Subtitle)dataGridView1.CurrentRow.DataBoundItem);
                 Close();
             }
         }

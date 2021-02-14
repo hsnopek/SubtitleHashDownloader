@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Runtime.InteropServices;
 
-namespace SubtitleDownloader.Helpers
+namespace SubtitleDownloader.Common.Util
 {
 
     abstract class WindowManager

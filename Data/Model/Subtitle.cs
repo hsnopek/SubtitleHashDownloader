@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace SubtitleDownloader.Data.Model
 {
-    public class JSONResponse
+    public class Subtitle
     {
         public long MovieByteSize { get; set; }
         public string SubFileName { get; set; }
