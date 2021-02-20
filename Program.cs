@@ -1,7 +1,4 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using SubtitleDownloader.Data.Client;
-using System;
+﻿using System;
 using System.Linq;
 using System.Threading;
 using System.Windows.Forms;
@@ -11,7 +8,6 @@ namespace SubtitleDownloader
     static class Program
     {
         static Mutex mutex = new Mutex(false, "com.hsnopek.subtitledownloader");
-        public static IServiceProvider ServiceProvider { get; set; }
 
         /// <summary>
         /// The main entry point for the application.
