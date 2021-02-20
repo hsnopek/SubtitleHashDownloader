@@ -57,10 +57,18 @@ namespace SubtitleDownloader.Forms.Search
                 return;
             }
 
+            btnSearch.Text = "Pretražujem...";
+            btnSearch.Enabled = false;
+            Cursor.Current = Cursors.WaitCursor;
+
             List<Subtitle> subtitleList = this.subtitleClient.SearchSubtitles(cmbLanguage.SelectedValue.ToString(), etTitle.Text, etSeason.Text, etEpisode.Text);
 
             dataGridView1.DataSource = subtitleList;
             btnDownload.Enabled = subtitleList != null && subtitleList.Count > 0 && dataGridView1.SelectedRows.Count > 0;
+            
+            btnSearch.Enabled = true;
+            btnSearch.Text = "Pretraži";
+            Cursor.Current = Cursors.Default;
 
             foreach (DataGridViewColumn col in dataGridView1.Columns)
             {
@@ -104,6 +112,11 @@ namespace SubtitleDownloader.Forms.Search
             Properties.Settings.Default.DefaultWebsite = cmbStranica.SelectedItem.ToString();
             Properties.Settings.Default.Save();
             this.subtitleClient = this.subtitleClientFactory.BuildClient();
+
+        }
+
+        private void dataGridView1_DataSourceChanged(object sender, EventArgs e)
+        {
 
         }
     }
