@@ -29,6 +29,8 @@
         private void InitializeComponent()
         {
             this.groupBoxFilter = new System.Windows.Forms.GroupBox();
+            this.cmbStranica = new System.Windows.Forms.ComboBox();
+            this.lblStranica = new System.Windows.Forms.Label();
             this.etEpisode = new System.Windows.Forms.TextBox();
             this.etSeason = new System.Windows.Forms.TextBox();
             this.etTitle = new System.Windows.Forms.TextBox();
@@ -49,6 +51,10 @@
             // 
             // groupBoxFilter
             // 
+            this.groupBoxFilter.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.groupBoxFilter.Controls.Add(this.cmbStranica);
+            this.groupBoxFilter.Controls.Add(this.lblStranica);
             this.groupBoxFilter.Controls.Add(this.etEpisode);
             this.groupBoxFilter.Controls.Add(this.etSeason);
             this.groupBoxFilter.Controls.Add(this.etTitle);
@@ -58,38 +64,63 @@
             this.groupBoxFilter.Controls.Add(this.btnSearch);
             this.groupBoxFilter.Controls.Add(this.lblLanguage);
             this.groupBoxFilter.Controls.Add(this.cmbLanguage);
-            this.groupBoxFilter.Location = new System.Drawing.Point(12, 12);
+            this.groupBoxFilter.Location = new System.Drawing.Point(14, 14);
             this.groupBoxFilter.Name = "groupBoxFilter";
-            this.groupBoxFilter.Size = new System.Drawing.Size(398, 165);
+            this.groupBoxFilter.Size = new System.Drawing.Size(359, 196);
             this.groupBoxFilter.TabIndex = 0;
             this.groupBoxFilter.TabStop = false;
             this.groupBoxFilter.Text = "Filter";
             // 
+            // cmbStranica
+            // 
+            this.cmbStranica.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.cmbStranica.FormattingEnabled = true;
+            this.cmbStranica.Items.AddRange(new object[] {
+            "OpenSubtitles",
+            "PodnapisiNET"});
+            this.cmbStranica.Location = new System.Drawing.Point(61, 24);
+            this.cmbStranica.Name = "cmbStranica";
+            this.cmbStranica.Size = new System.Drawing.Size(283, 21);
+            this.cmbStranica.TabIndex = 12;
+            this.cmbStranica.SelectedIndexChanged += new System.EventHandler(this.cmbStranica_SelectedIndexChanged);
+            // 
+            // lblStranica
+            // 
+            this.lblStranica.AutoSize = true;
+            this.lblStranica.Location = new System.Drawing.Point(8, 27);
+            this.lblStranica.Name = "lblStranica";
+            this.lblStranica.Size = new System.Drawing.Size(49, 13);
+            this.lblStranica.TabIndex = 11;
+            this.lblStranica.Text = "Stranica:";
+            // 
             // etEpisode
             // 
-            this.etEpisode.Location = new System.Drawing.Point(60, 103);
+            this.etEpisode.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.etEpisode.Location = new System.Drawing.Point(61, 132);
             this.etEpisode.Name = "etEpisode";
-            this.etEpisode.Size = new System.Drawing.Size(318, 20);
+            this.etEpisode.Size = new System.Drawing.Size(284, 20);
             this.etEpisode.TabIndex = 10;
             // 
             // etSeason
             // 
-            this.etSeason.Location = new System.Drawing.Point(60, 77);
+            this.etSeason.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.etSeason.Location = new System.Drawing.Point(61, 106);
             this.etSeason.Name = "etSeason";
-            this.etSeason.Size = new System.Drawing.Size(318, 20);
+            this.etSeason.Size = new System.Drawing.Size(283, 20);
             this.etSeason.TabIndex = 9;
             // 
             // etTitle
             // 
-            this.etTitle.Location = new System.Drawing.Point(60, 47);
+            this.etTitle.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.etTitle.Location = new System.Drawing.Point(61, 80);
             this.etTitle.Name = "etTitle";
-            this.etTitle.Size = new System.Drawing.Size(318, 20);
+            this.etTitle.Size = new System.Drawing.Size(284, 20);
             this.etTitle.TabIndex = 8;
             // 
             // lblEpisode
             // 
             this.lblEpisode.AutoSize = true;
-            this.lblEpisode.Location = new System.Drawing.Point(6, 106);
+            this.lblEpisode.Location = new System.Drawing.Point(8, 135);
             this.lblEpisode.Name = "lblEpisode";
             this.lblEpisode.Size = new System.Drawing.Size(48, 13);
             this.lblEpisode.TabIndex = 7;
@@ -98,7 +129,7 @@
             // lblSeason
             // 
             this.lblSeason.AutoSize = true;
-            this.lblSeason.Location = new System.Drawing.Point(6, 80);
+            this.lblSeason.Location = new System.Drawing.Point(8, 109);
             this.lblSeason.Name = "lblSeason";
             this.lblSeason.Size = new System.Drawing.Size(46, 13);
             this.lblSeason.TabIndex = 6;
@@ -107,7 +138,7 @@
             // lblTitle
             // 
             this.lblTitle.AutoSize = true;
-            this.lblTitle.Location = new System.Drawing.Point(6, 50);
+            this.lblTitle.Location = new System.Drawing.Point(8, 83);
             this.lblTitle.Name = "lblTitle";
             this.lblTitle.Size = new System.Drawing.Size(37, 13);
             this.lblTitle.TabIndex = 5;
@@ -115,8 +146,9 @@
             // 
             // btnSearch
             // 
+            this.btnSearch.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.btnSearch.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
-            this.btnSearch.Location = new System.Drawing.Point(303, 129);
+            this.btnSearch.Location = new System.Drawing.Point(270, 158);
             this.btnSearch.Name = "btnSearch";
             this.btnSearch.Size = new System.Drawing.Size(75, 23);
             this.btnSearch.TabIndex = 1;
@@ -127,7 +159,7 @@
             // lblLanguage
             // 
             this.lblLanguage.AutoSize = true;
-            this.lblLanguage.Location = new System.Drawing.Point(6, 23);
+            this.lblLanguage.Location = new System.Drawing.Point(8, 56);
             this.lblLanguage.Name = "lblLanguage";
             this.lblLanguage.Size = new System.Drawing.Size(34, 13);
             this.lblLanguage.TabIndex = 4;
@@ -135,19 +167,20 @@
             // 
             // cmbLanguage
             // 
+            this.cmbLanguage.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.cmbLanguage.FormattingEnabled = true;
-            this.cmbLanguage.Location = new System.Drawing.Point(60, 20);
+            this.cmbLanguage.Location = new System.Drawing.Point(61, 53);
             this.cmbLanguage.Name = "cmbLanguage";
-            this.cmbLanguage.Size = new System.Drawing.Size(318, 21);
+            this.cmbLanguage.Size = new System.Drawing.Size(284, 21);
             this.cmbLanguage.TabIndex = 0;
             // 
             // btnCancel
             // 
             this.btnCancel.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnCancel.Location = new System.Drawing.Point(254, 407);
+            this.btnCancel.Location = new System.Drawing.Point(214, 417);
             this.btnCancel.Name = "btnCancel";
-            this.btnCancel.Size = new System.Drawing.Size(75, 23);
+            this.btnCancel.Size = new System.Drawing.Size(75, 22);
             this.btnCancel.TabIndex = 2;
             this.btnCancel.Text = "Odustani";
             this.btnCancel.UseVisualStyleBackColor = true;
@@ -155,11 +188,13 @@
             // 
             // groupBoxResults
             // 
+            this.groupBoxResults.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.groupBoxResults.Controls.Add(this.dataGridView1);
-            this.groupBoxResults.Location = new System.Drawing.Point(12, 183);
+            this.groupBoxResults.Location = new System.Drawing.Point(14, 216);
             this.groupBoxResults.Name = "groupBoxResults";
             this.groupBoxResults.Padding = new System.Windows.Forms.Padding(5);
-            this.groupBoxResults.Size = new System.Drawing.Size(398, 217);
+            this.groupBoxResults.Size = new System.Drawing.Size(358, 192);
             this.groupBoxResults.TabIndex = 3;
             this.groupBoxResults.TabStop = false;
             this.groupBoxResults.Text = "Titlovi";
@@ -175,7 +210,7 @@
             this.dataGridView1.MultiSelect = false;
             this.dataGridView1.Name = "dataGridView1";
             this.dataGridView1.ReadOnly = true;
-            this.dataGridView1.Size = new System.Drawing.Size(388, 194);
+            this.dataGridView1.Size = new System.Drawing.Size(348, 169);
             this.dataGridView1.TabIndex = 0;
             this.dataGridView1.SelectionChanged += new System.EventHandler(this.DataGridView1_SelectionChanged);
             // 
@@ -185,9 +220,9 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.btnDownload.Enabled = false;
             this.btnDownload.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
-            this.btnDownload.Location = new System.Drawing.Point(335, 407);
+            this.btnDownload.Location = new System.Drawing.Point(295, 417);
             this.btnDownload.Name = "btnDownload";
-            this.btnDownload.Size = new System.Drawing.Size(75, 23);
+            this.btnDownload.Size = new System.Drawing.Size(75, 22);
             this.btnDownload.TabIndex = 4;
             this.btnDownload.Text = "Preuzmi";
             this.btnDownload.UseVisualStyleBackColor = true;
@@ -197,14 +232,12 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(423, 442);
+            this.ClientSize = new System.Drawing.Size(383, 451);
             this.Controls.Add(this.btnDownload);
             this.Controls.Add(this.groupBoxResults);
             this.Controls.Add(this.btnCancel);
             this.Controls.Add(this.groupBoxFilter);
-            this.MaximumSize = new System.Drawing.Size(439, 481);
             this.MinimizeBox = false;
-            this.MinimumSize = new System.Drawing.Size(439, 481);
             this.Name = "frmSearch";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Tražilica";
@@ -233,5 +266,7 @@
         public System.Windows.Forms.TextBox etSeason;
         public System.Windows.Forms.TextBox etTitle;
         public System.Windows.Forms.Button btnSearch;
+        private System.Windows.Forms.ComboBox cmbStranica;
+        private System.Windows.Forms.Label lblStranica;
     }
 }

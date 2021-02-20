@@ -1,37 +1,30 @@
 ﻿using Microsoft.Win32;
-using Newtonsoft.Json.Linq;
-using SubtitleDownloader.Common;
 using SubtitleDownloader.Common.Util;
 using SubtitleDownloader.Data.Client;
 using SubtitleDownloader.Data.Model;
 using SubtitleDownloader.Forms.ChooseSubtitle;
+using SubtitleDownloader.Forms.Main;
+using SubtitleDownloader.Forms.Main.Presenters;
 using SubtitleDownloader.Forms.Search;
 using SubtitleDownloader.Forms.Settings;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Net;
-using System.Net.Sockets;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace SubtitleDownloader
 {
-    public partial class Main : Form
+    public partial class Main : Form, IMainView
     {
-        readonly ISubtitleClient subtitleClient;        
+        readonly ISubtitleClientFactory SubtitleClientFactory;
+        readonly IMainPresenter MainPresenter;
 
-        public Main(ISubtitleClient subtitleClient)
+        public Main()
         {
-            this.subtitleClient = subtitleClient;
+            this.SubtitleClientFactory = new SubtitleClientFactory();
+            this.MainPresenter = new MainPresenter(this);
+
             InitializeComponent();
-        }
-
-        private void linkLabel1_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
-        {
-            frmSettings settings = new frmSettings();
-            settings.ShowDialog();
         }
 
         private void Main_Load(object sender, EventArgs e)
@@ -39,94 +32,84 @@ namespace SubtitleDownloader
             WindowManager.SetTopMost(this.Handle);
         }
 
-        private void btnFilter_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+
+        public void OpenSettingsForm(object sender, LinkLabelLinkClickedEventArgs e)
         {
-            frmSearch searchForm = new frmSearch(subtitleClient);
+            frmSettings settings = new frmSettings();
+            settings.ShowDialog();
+        }
+
+        public void OpenNewSearchForm(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            frmSearch searchForm = new frmSearch(this.SubtitleClientFactory);
             searchForm.ShowDialog();
         }
 
-        private void Main_DragOver(object sender, DragEventArgs e)
+        public void ShowSearchFormWhenNoSubtitleFound(String file, FileInfo selectedFile) 
+        {
+            if (MessageBox.Show("Pretraga po hash-u nije pronašla niti jedan rezultat za datoteku:\n\n" + selectedFile.Name +
+                            "\n\nŽelite li pretražiti po pojmu?", "Info", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+            {
+                using (frmSearch frmSearch = new frmSearch(this.SubtitleClientFactory))
+                {
+                    frmSearch.Text = file;
+                    frmSearch.FromMain = true;
+                    frmSearch.FromMainInitialDirectory = selectedFile.Directory.ToString();
+                    frmSearch.etTitle.Text = Path.GetFileNameWithoutExtension(selectedFile.Name);
+                    frmSearch.ShowDialog();
+                }
+            }
+        }
+
+        public void OpenChooseSubtitleForm(List<Subtitle> responseList, ISubtitleClient subtitleClient)
+        {
+            using (frmChooseSubtitle frmChooseSubtitle = new frmChooseSubtitle(responseList, subtitleClient))
+            {
+                frmChooseSubtitle.ShowDialog();
+            }
+        }
+
+
+        private void ShowDragFileEffect(object sender, DragEventArgs e)
         {
             e.Effect = DragDropEffects.Move;
         }
 
-        private void Main_DragDrop(object sender, DragEventArgs e)
+        public void DropFile(object sender, DragEventArgs e)
         {
             string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
-
-            FindSubtitleByHash(files);
+            this.MainPresenter.OnFileDrop(files);
 
         }
-
-        public void FindSubtitleByHash(string[] files)
+       
+        private void Main_FormClosing(object sender, FormClosingEventArgs e)
         {
-            try
+            if (e.CloseReason == CloseReason.UserClosing && Properties.Settings.Default.MinimizeToTray)
             {
-                foreach (string file in files)
-                {
-                    byte[] moviehash = MovieHasher.ComputeMovieHash(file);
-                    string hexString = MovieHasher.ToHexadecimal(moviehash);
-
-                    string languageCode = Language.GetLanguageCode(Properties.Settings.Default.DefaultLanguage);
-                    List<Subtitle> subtitleList = subtitleClient.DownloadSubtitleByHash(hexString, languageCode);   // Svi rezultati pretrage za odabrani fajl
-
-                    FileInfo selectedFile = new FileInfo(file);
-
-                    if (subtitleList != null && subtitleList.Count > 0)
-                    {
-                        if (Properties.Settings.Default.IFeelLucky) // Dohvati samo prvi rezultat
-                        {
-                            Subtitle subtitle = subtitleList.FirstOrDefault();
-                            MapFileInfoToSubtitle(selectedFile, subtitle);
-                            DownloadFirstResultOnly(subtitle);
-                        }
-                        else // Dohvati sve rezultate i proslijedi ih u novu formu
-                        {
-                            subtitleList.ForEach( item => { 
-                                MapFileInfoToSubtitle(selectedFile, item);
-                            });
-
-                            using (frmChooseSubtitle frmChooseSubtitle = new frmChooseSubtitle(subtitleList))
-                            {
-                                frmChooseSubtitle.ShowDialog();
-                            }
-                        }
-                    }
-                    else
-                    {
-                        if (MessageBox.Show("Pretraga po hash-u nije pronašla niti jedan rezultat za datoteku:\n\n" + selectedFile.Name + 
-                            "\n\nŽelite li pretražiti po pojmu?", "Info", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
-                        {
-                            using (frmSearch frmSearch = new frmSearch(subtitleClient))
-                            {
-                                frmSearch.Text = file;
-                                frmSearch.FromMain = true;
-                                frmSearch.FromMainInitialDirectory = selectedFile.Directory.ToString();
-                                frmSearch.etTitle.Text = Path.GetFileNameWithoutExtension(selectedFile.Name);
-                                frmSearch.ShowDialog();
-                            }
-                        }
-                    }
-                }
+                e.Cancel = true;
+                Hide();
             }
-            catch (Exception ex)
+            else
             {
-                MessageBox.Show(ex.Message);
+                Application.Exit();
             }
         }
 
-        private void DownloadFirstResultOnly(Subtitle subtitle)
+        private void Main_Shown(object sender, EventArgs e)
         {
-            FileHelper.DownloadFile(subtitle);
+            RegistryKey key = Registry.CurrentUser.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Run", true);
+
+            if (key.GetValue("SubtitleDownloader") != null)
+                Hide();
+
         }
 
-        private void MapFileInfoToSubtitle(FileInfo fileInfo, Subtitle subtitle)
+        public void BringToFront(object sender, EventArgs e)
         {
-            subtitle.FileName = fileInfo.Name + ".srt";
-            subtitle.ParentDirectoryPath = fileInfo.DirectoryName;
+            Show();
         }
 
-        private void MnuOpen_Click(object sender, EventArgs e)
+        public void SelectFolder(object sender, EventArgs e)
         {
             using (OpenFileDialog opf = new OpenFileDialog())
             {
@@ -136,39 +119,16 @@ namespace SubtitleDownloader
 
                 opf.ShowDialog();
 
-                FindSubtitleByHash(opf.FileNames);
+                MainPresenter.OnSelectFolderClick(opf.FileNames);
             }
         }
 
-        private void Main_FormClosing(object sender, FormClosingEventArgs e)
-        {
-            if (e.CloseReason == CloseReason.UserClosing && Properties.Settings.Default.MinimizeToTray)
-            {
-                e.Cancel = true;
-                this.Hide();
-            }
-            else
-            {
-                Application.Exit();
-            }
-        }
-
-        private void MnuExit_Click(object sender, EventArgs e)
+        public void ExitApplication(object sender, EventArgs e)
         {
             Application.Exit();
         }
 
-        private void MnuShow_Click(object sender, EventArgs e)
-        {
-            this.Show();
-        }
-
-        private void NotifyIcon1_MouseDoubleClick(object sender, MouseEventArgs e)
-        {
-            this.Show();
-        }
-
-        private void MnuStartWithWindows_Click(object sender, EventArgs e)
+        public void StartWithWindows(object sender, EventArgs e)
         {
             RegistryKey key = Registry.CurrentUser.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Run", true);
             if (key.GetValue("SubtitleDownloader") == null)
@@ -177,10 +137,9 @@ namespace SubtitleDownloader
                 key.DeleteValue("SubtitleDownloader", false);
 
             mnuStartWithWindows.Checked = !mnuStartWithWindows.Checked;
-
         }
 
-        private void NotifyIcon1_MouseClick(object sender, MouseEventArgs e)
+        public void OpenContextMenu(object sender, MouseEventArgs e)
         {
             if (e.Button == MouseButtons.Right)
             {
@@ -193,13 +152,5 @@ namespace SubtitleDownloader
             }
         }
 
-        private void Main_Shown(object sender, EventArgs e)
-        {
-            RegistryKey key = Registry.CurrentUser.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Run", true);
-
-            if (key.GetValue("SubtitleDownloader") != null)
-                Hide();
-
-        }
     }
 }

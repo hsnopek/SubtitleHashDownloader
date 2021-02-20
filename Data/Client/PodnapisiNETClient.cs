@@ -4,23 +4,20 @@ using SubtitleDownloader.Data.Model;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.IO.Compression;
 using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
-using System.Windows.Forms;
 
 namespace SubtitleDownloader.Data.Client
 {
-    public class OpenSubtitlesClient : ISubtitleClient
+    class PodnapisiNETClient : ISubtitleClient
     {
-        public OpenSubtitlesClient() { }
 
         private string HttpGet(string url)
         {
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
-            request.Headers.Add("X-User-Agent: TemporaryUserAgent");
+            request.Accept = "application/json";
             request.AutomaticDecompression = DecompressionMethods.GZip;
 
             string responseStr = "";
@@ -48,61 +45,62 @@ namespace SubtitleDownloader.Data.Client
 
         public List<Subtitle> DownloadSubtitleByHash(string hash, string sublanguageid)
         {
-            string url = String.Format("{0}moviehash-{1}/sublanguageid-{2}", "http://rest.opensubtitles.org/search/", hash, sublanguageid);
-            String res = HttpGet(url);
-
-            List<Subtitle> subtitleList = MapResponse(res);
-
-            return subtitleList;
+            return new List<Subtitle>();
         }
 
-      
         public List<Subtitle> SearchSubtitles(string sublanguageid, string title, string season = "", string episode = "")
         {
-            string language = "sublanguageid-" + sublanguageid;
-            string query = "/query-" + title;
-            string seasonStr = !string.IsNullOrEmpty(season) ? "/season-" + season : String.Empty;
-            string episodeStr = !string.IsNullOrEmpty(episode) ? "/episode-" + episode : String.Empty;
+            string keywords = "keywords=" + title;
+            string movieType = "&movie_type=";
+            string seasonStr = !string.IsNullOrEmpty(season) ? "&seasons=" + season : "&seasons=";
+            string episodeStr = !string.IsNullOrEmpty(episode) ? "&episodes=" + episode : "&episodes=";
+            string year = "&year=";
+            string language = sublanguageid ==  "eng" ? "&language=en" : "&language=hr";
 
             string url = new StringBuilder()
-                .Append(@"http://rest.opensubtitles.org/search/")
-                .Append(language)
-                .Append(query)
-                .Append(seasonStr)
-                .Append(episodeStr)
-                .ToString();
-                            
-            String res = HttpGet(url);
+            .Append(@"https://www.podnapisi.net/en/subtitles/search/?")
+            .Append(keywords.Replace(" ", "+"))
+            .Append(movieType)
+            .Append(seasonStr)
+            .Append(episodeStr)
+            .Append(year)
+            .Append(language)
+           .ToString();
+
+            String res = HttpGet(url.Replace(" ", "+"));
             List<Subtitle> subtitleList = MapResponse(res);
 
             return subtitleList;
         }
+
 
         public List<Subtitle> MapResponse(string res)
         {
             List<Subtitle> subtitleList = new List<Subtitle>();
+            Subtitle subtitle = null;
             try
             {
-                JArray resArray = JArray.Parse(res);
-                if (resArray != null && resArray.Count > 0)
+                JToken resObj = JToken.Parse(res);
+                JArray data = (JArray) resObj["data"];
+
+                foreach (JToken item in data) 
                 {
-                    foreach (JToken item in resArray)
-                    {
-                        subtitleList.Add(new Subtitle()
-                        {
-                            MovieName = item["MovieName"].ToString(),
-                            MovieByteSize = (long)item["MovieByteSize"],
-                            SubDownloadLink = item["SubDownloadLink"].ToString(),
-                            SubFileName = item["SubFileName"].ToString()
-                        });
-                    }
+
+                    subtitle = new Subtitle();
+
+                    subtitle.SubFileName = item.SelectToken("custom_releases").Value<JArray>().ToObject<List<String>>().FirstOrDefault<String>();
+                    subtitle.SubDownloadLink = "https://www.podnapisi.net" + item.SelectToken("download").Value<String>();
+                    subtitle.MovieName = item.SelectToken("movie").Value<JToken>().SelectToken("title").Value<String>();
+                    subtitle.MovieByteSize = 0;
+
+                    subtitleList.Add(subtitle);
                 }
             }
             catch (Exception e)
             {
             }
 
-            return subtitleList.Where(x => x.SubFileName != null && !String.IsNullOrEmpty(x.SubFileName)).ToList();
+            return subtitleList.Where( x => x.SubFileName != null && !String.IsNullOrEmpty(x.SubFileName)).ToList();
         }
 
         public void DownloadFile(Subtitle subtitle)

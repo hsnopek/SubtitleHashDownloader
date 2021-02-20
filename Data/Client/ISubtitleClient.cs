@@ -7,5 +7,10 @@ namespace SubtitleDownloader.Data.Client
     {
         List<Subtitle> DownloadSubtitleByHash(string hash, string sublanguageid);
         List<Subtitle> SearchSubtitles(string sublanguageid, string title, string season = "", string episode = "");
+
+        List<Subtitle> MapResponse(string res);
+
+        void DownloadFile(Subtitle subtitle);
+
     }
 }

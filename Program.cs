@@ -11,6 +11,7 @@ namespace SubtitleDownloader
     static class Program
     {
         static Mutex mutex = new Mutex(false, "com.hsnopek.subtitledownloader");
+        public static IServiceProvider ServiceProvider { get; set; }
 
         /// <summary>
         /// The main entry point for the application.
@@ -29,23 +30,10 @@ namespace SubtitleDownloader
             try
             {
 
-                var builder = new HostBuilder()
-                .ConfigureServices((hostContext, services) =>
-                {
-                    services.AddSingleton<Main>();
-                    services.AddSingleton<ISubtitleClient, OpenSubtitlesClient>();
-                });
-                var host = builder.Build();
+                Application.EnableVisualStyles();
+                Application.SetCompatibleTextRenderingDefault(false);
+                Application.Run(new Main());
 
-                using (var serviceScope = host.Services.CreateScope())
-                {
-
-                    Application.EnableVisualStyles();
-                    Application.SetCompatibleTextRenderingDefault(false);
-
-                    var mainForm = serviceScope.ServiceProvider.GetRequiredService<Main>();
-                    Application.Run(mainForm);
-                }
             }
             finally { mutex.ReleaseMutex(); }
         }

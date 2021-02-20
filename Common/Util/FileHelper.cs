@@ -1,22 +1,20 @@
 ﻿using SubtitleDownloader.Data.Model;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
-using System.Linq;
 using System.Net;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
 
 namespace SubtitleDownloader.Common.Util
 {
     class FileHelper
     {
-        public static void DownloadFile(Subtitle subtitle)
+        public static void DownloadFile(Subtitle subtitle, bool unzip)
         {
+            string subFileName = System.IO.Path.GetFileName(subtitle.SubFileName);
 
-            string subFileName = System.IO.Path.GetFileName(subtitle.SubDownloadLink);
+            if (unzip && !subFileName.EndsWith(".zip"))
+                subFileName += ".zip";
+
             string subFullPath = Path.Combine(subtitle.ParentDirectoryPath, subFileName);
 
             try
@@ -32,9 +30,11 @@ namespace SubtitleDownloader.Common.Util
                     }
                 }
 
-                Decompress(new FileInfo(subFullPath), subtitle);   // odzipaj .gz
-                File.Delete(subFullPath);  // obriši .gz
-
+                if (unzip)
+                {
+                    FileHelper.Decompress(new FileInfo(subFullPath), subtitle);   // odzipaj .gz
+                    File.Delete(subFullPath);  // obriši .gz
+                }
             }
             catch (Exception e)
             {
@@ -42,23 +42,38 @@ namespace SubtitleDownloader.Common.Util
             }
         }
 
-        public static void Decompress(FileInfo fileToDecompress, Subtitle response)
+        public static void Decompress(FileInfo fileToDecompress, Subtitle subtitle)
         {
-            using (FileStream originalFileStream = fileToDecompress.OpenRead())
-            {
-                string currentFileName = fileToDecompress.FullName;
-                string newFileName = currentFileName.Remove(currentFileName.Length - fileToDecompress.Extension.Length);
-                newFileName = Path.Combine(response.ParentDirectoryPath, response.FileName);
+            string newFileName = String.Empty;
 
-                using (FileStream decompressedFileStream = File.Create(newFileName))
+            try
+            {
+                using (FileStream originalFileStream = fileToDecompress.OpenRead())
                 {
-                    using (GZipStream decompressionStream = new GZipStream(originalFileStream, CompressionMode.Decompress))
+                    string currentFileName = fileToDecompress.FullName;
+                    newFileName = currentFileName.Remove(currentFileName.Length - fileToDecompress.Extension.Length);
+                    newFileName = Path.Combine(subtitle.ParentDirectoryPath, subtitle.FileName);
+
+                    using (FileStream decompressedFileStream = File.Create(newFileName))
                     {
-                        decompressionStream.CopyTo(decompressedFileStream);
-                        Console.WriteLine("Decompressed: {0}", fileToDecompress.Name);
+                        using (GZipStream decompressionStream = new GZipStream(originalFileStream, CompressionMode.Decompress))
+                        {
+                            decompressionStream.CopyTo(decompressedFileStream);
+                        }
+                    }
+                }
+
+            } catch (Exception e) // Ako dekompresija ne uspije, probaj na drugi način
+            {
+                using (ZipArchive archive = ZipFile.OpenRead(fileToDecompress.FullName))
+                {
+                    foreach (ZipArchiveEntry entry in archive.Entries)
+                    {
+                        ZipFileExtensions.ExtractToFile(entry, newFileName, true);
                     }
                 }
             }
+
         }
     }
 }

@@ -63,7 +63,7 @@
             this.btnPostavke.TabIndex = 2;
             this.btnPostavke.TabStop = true;
             this.btnPostavke.Text = "Postavke";
-            this.btnPostavke.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkLabel1_LinkClicked);
+            this.btnPostavke.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.OpenSettingsForm);
             // 
             // label1
             // 
@@ -87,7 +87,7 @@
             this.btnFilter.TabIndex = 4;
             this.btnFilter.TabStop = true;
             this.btnFilter.Text = "Pronađi po nazivu";
-            this.btnFilter.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.btnFilter_LinkClicked);
+            this.btnFilter.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.OpenNewSearchForm);
             // 
             // notifyIcon1
             // 
@@ -98,8 +98,8 @@
             this.notifyIcon1.Icon = ((System.Drawing.Icon)(resources.GetObject("notifyIcon1.Icon")));
             this.notifyIcon1.Text = "SubtitleDownloader";
             this.notifyIcon1.Visible = true;
-            this.notifyIcon1.MouseClick += new System.Windows.Forms.MouseEventHandler(this.NotifyIcon1_MouseClick);
-            this.notifyIcon1.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.NotifyIcon1_MouseDoubleClick);
+            this.notifyIcon1.MouseClick += new System.Windows.Forms.MouseEventHandler(this.OpenContextMenu);
+            this.notifyIcon1.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.BringToFront);
             // 
             // contextMenuStrip1
             // 
@@ -117,7 +117,7 @@
             this.mnuShow.Name = "mnuShow";
             this.mnuShow.Size = new System.Drawing.Size(200, 22);
             this.mnuShow.Text = "Prikaži";
-            this.mnuShow.Click += new System.EventHandler(this.MnuShow_Click);
+            this.mnuShow.Click += new System.EventHandler(this.BringToFront);
             // 
             // mnuOpen
             // 
@@ -125,7 +125,7 @@
             this.mnuOpen.Name = "mnuOpen";
             this.mnuOpen.Size = new System.Drawing.Size(200, 22);
             this.mnuOpen.Text = "Otvori";
-            this.mnuOpen.Click += new System.EventHandler(this.MnuOpen_Click);
+            this.mnuOpen.Click += new System.EventHandler(this.SelectFolder);
             // 
             // mnuExit
             // 
@@ -133,7 +133,7 @@
             this.mnuExit.Name = "mnuExit";
             this.mnuExit.Size = new System.Drawing.Size(200, 22);
             this.mnuExit.Text = "Izađi";
-            this.mnuExit.Click += new System.EventHandler(this.MnuExit_Click);
+            this.mnuExit.Click += new System.EventHandler(this.ExitApplication);
             // 
             // mnuStartWithWindows
             // 
@@ -141,7 +141,7 @@
             this.mnuStartWithWindows.Name = "mnuStartWithWindows";
             this.mnuStartWithWindows.Size = new System.Drawing.Size(200, 22);
             this.mnuStartWithWindows.Text = "Pokreni sa Windowsima";
-            this.mnuStartWithWindows.Click += new System.EventHandler(this.MnuStartWithWindows_Click);
+            this.mnuStartWithWindows.Click += new System.EventHandler(this.StartWithWindows);
             // 
             // Main
             // 
@@ -165,8 +165,8 @@
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Main_FormClosing);
             this.Load += new System.EventHandler(this.Main_Load);
             this.Shown += new System.EventHandler(this.Main_Shown);
-            this.DragDrop += new System.Windows.Forms.DragEventHandler(this.Main_DragDrop);
-            this.DragOver += new System.Windows.Forms.DragEventHandler(this.Main_DragOver);
+            this.DragDrop += new System.Windows.Forms.DragEventHandler(this.DropFile);
+            this.DragOver += new System.Windows.Forms.DragEventHandler(this.ShowDragFileEffect);
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.contextMenuStrip1.ResumeLayout(false);
             this.ResumeLayout(false);

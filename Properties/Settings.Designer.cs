@@ -58,5 +58,17 @@ namespace SubtitleDownloader.Properties {
                 this["MinimizeToTray"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("OpenSubtitles")]
+        public string DefaultWebsite {
+            get {
+                return ((string)(this["DefaultWebsite"]));
+            }
+            set {
+                this["DefaultWebsite"] = value;
+            }
+        }
     }
 }

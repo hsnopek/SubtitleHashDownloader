@@ -10,9 +10,12 @@ namespace SubtitleDownloader.Forms.ChooseSubtitle
 {
     public partial class frmChooseSubtitle : Form
     {
+        private readonly ISubtitleClient subtitleClient;
 
-        public frmChooseSubtitle(List<Subtitle> responseList)
+        public frmChooseSubtitle(List<Subtitle> responseList, ISubtitleClient subtitleClient)
         {
+            this.subtitleClient = subtitleClient;
+
             InitializeComponent();
             WindowManager.SetTopMost(this.Handle);
 
@@ -41,7 +44,7 @@ namespace SubtitleDownloader.Forms.ChooseSubtitle
         {
             if (dataGridView1.CurrentCell.OwningColumn.Name == "btnDownload")
             {
-                FileHelper.DownloadFile((Subtitle)dataGridView1.CurrentRow.DataBoundItem);
+                subtitleClient.DownloadFile((Subtitle)dataGridView1.CurrentRow.DataBoundItem);
                 Close();
             }
         }

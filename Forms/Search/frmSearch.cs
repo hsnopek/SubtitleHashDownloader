@@ -13,13 +13,16 @@ namespace SubtitleDownloader.Forms.Search
 {
     public partial class frmSearch : Form
     {
-        readonly ISubtitleClient subtitleClient;
+        ISubtitleClientFactory subtitleClientFactory;
+        ISubtitleClient subtitleClient;
         public bool FromMain { get; set; } // ako titl nije pronađen po hashu podiže se search forma sa fromMain = true;
         public string FromMainInitialDirectory { get; set; } // ako se tražilica poziva sa vanjske forme, koji je inicijalni direktorij
 
-        public frmSearch(ISubtitleClient subtitleClient)
+
+        public frmSearch(ISubtitleClientFactory subtitleClientFactory)
         {
-            this.subtitleClient = subtitleClient;
+            this.subtitleClientFactory = subtitleClientFactory;
+            this.subtitleClient = this.subtitleClientFactory.BuildClient();
             InitializeComponent();
 
             List<Language> languageList = new List<Language> { new Language("English", "eng"), new Language("Croatian", "hrv") };
@@ -29,6 +32,8 @@ namespace SubtitleDownloader.Forms.Search
             cmbLanguage.ValueMember = "CountryCode";
 
             cmbLanguage.SelectedIndex = cmbLanguage.FindString(Properties.Settings.Default.DefaultLanguage);
+            cmbStranica.SelectedIndex = cmbStranica.FindString(Properties.Settings.Default.DefaultWebsite);
+            
         }
 
         private void Search_Load(object sender, EventArgs e)
@@ -82,7 +87,7 @@ namespace SubtitleDownloader.Forms.Search
                 {
                     subtitle.FileName = System.IO.Path.GetFileName(sfd.FileName);
                     subtitle.ParentDirectoryPath = Path.GetDirectoryName(sfd.FileName);
-                    FileHelper.DownloadFile(subtitle);
+                    subtitleClient.DownloadFile(subtitle);
                     Close();
                 }
             }
@@ -90,7 +95,16 @@ namespace SubtitleDownloader.Forms.Search
 
         private void DataGridView1_SelectionChanged(object sender, EventArgs e)
         {
-            btnDownload.Enabled = dataGridView1.CurrentCell.RowIndex >= 0 ? true : false;
+            if (dataGridView1.Rows.Count > 0)
+                btnDownload.Enabled = dataGridView1.CurrentCell.RowIndex >= 0 ? true : false;
+        }
+
+        private void cmbStranica_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            Properties.Settings.Default.DefaultWebsite = cmbStranica.SelectedItem.ToString();
+            Properties.Settings.Default.Save();
+            this.subtitleClient = this.subtitleClientFactory.BuildClient();
+
         }
     }
 }
