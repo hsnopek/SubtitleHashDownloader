@@ -28,6 +28,8 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.KeyPreview = true;
+
             this.groupBoxFilter = new System.Windows.Forms.GroupBox();
             this.cmbStranica = new System.Windows.Forms.ComboBox();
             this.lblStranica = new System.Windows.Forms.Label();
@@ -187,13 +189,14 @@
             // 
             // groupBoxResults
             // 
-            this.groupBoxResults.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            this.groupBoxResults.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.groupBoxResults.Controls.Add(this.dataGridView1);
             this.groupBoxResults.Location = new System.Drawing.Point(14, 216);
             this.groupBoxResults.Name = "groupBoxResults";
             this.groupBoxResults.Padding = new System.Windows.Forms.Padding(5);
-            this.groupBoxResults.Size = new System.Drawing.Size(358, 192);
+            this.groupBoxResults.Size = new System.Drawing.Size(358, 195);
             this.groupBoxResults.TabIndex = 3;
             this.groupBoxResults.TabStop = false;
             this.groupBoxResults.Text = "Titlovi";
@@ -209,7 +212,7 @@
             this.dataGridView1.MultiSelect = false;
             this.dataGridView1.Name = "dataGridView1";
             this.dataGridView1.ReadOnly = true;
-            this.dataGridView1.Size = new System.Drawing.Size(348, 169);
+            this.dataGridView1.Size = new System.Drawing.Size(348, 172);
             this.dataGridView1.TabIndex = 0;
             this.dataGridView1.DataSourceChanged += new System.EventHandler(this.dataGridView1_DataSourceChanged);
             this.dataGridView1.SelectionChanged += new System.EventHandler(this.DataGridView1_SelectionChanged);
@@ -242,6 +245,7 @@
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Tražilica";
             this.Load += new System.EventHandler(this.Search_Load);
+            this.KeyUp += new System.Windows.Forms.KeyEventHandler(this.frmSearch_KeyUp);
             this.groupBoxFilter.ResumeLayout(false);
             this.groupBoxFilter.PerformLayout();
             this.groupBoxResults.ResumeLayout(false);

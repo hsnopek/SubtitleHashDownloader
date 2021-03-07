@@ -51,7 +51,7 @@
             // 
             this.btnSave.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.btnSave.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
-            this.btnSave.Location = new System.Drawing.Point(251, 166);
+            this.btnSave.Location = new System.Drawing.Point(246, 166);
             this.btnSave.Name = "btnSave";
             this.btnSave.Size = new System.Drawing.Size(75, 23);
             this.btnSave.TabIndex = 2;
@@ -68,13 +68,13 @@
             "Croatian"});
             this.listBoxLanguages.Location = new System.Drawing.Point(5, 18);
             this.listBoxLanguages.Name = "listBoxLanguages";
-            this.listBoxLanguages.Size = new System.Drawing.Size(304, 87);
+            this.listBoxLanguages.Size = new System.Drawing.Size(299, 87);
             this.listBoxLanguages.TabIndex = 3;
             // 
             // btnCancel
             // 
             this.btnCancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnCancel.Location = new System.Drawing.Point(174, 166);
+            this.btnCancel.Location = new System.Drawing.Point(169, 166);
             this.btnCancel.Name = "btnCancel";
             this.btnCancel.Size = new System.Drawing.Size(75, 23);
             this.btnCancel.TabIndex = 4;
@@ -90,7 +90,7 @@
             this.groupBox1.Location = new System.Drawing.Point(12, 12);
             this.groupBox1.Name = "groupBox1";
             this.groupBox1.Padding = new System.Windows.Forms.Padding(5);
-            this.groupBox1.Size = new System.Drawing.Size(314, 110);
+            this.groupBox1.Size = new System.Drawing.Size(309, 110);
             this.groupBox1.TabIndex = 5;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Zadani jezik";
@@ -109,12 +109,14 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(338, 196);
+            this.ClientSize = new System.Drawing.Size(333, 196);
             this.Controls.Add(this.chkMinimizeToTray);
             this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.btnCancel);
             this.Controls.Add(this.btnSave);
             this.Controls.Add(this.chkFeelLucky);
+            this.MaximumSize = new System.Drawing.Size(349, 235);
+            this.MinimumSize = new System.Drawing.Size(349, 235);
             this.Name = "frmSettings";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Postavke";

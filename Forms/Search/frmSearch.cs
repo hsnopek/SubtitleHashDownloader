@@ -119,5 +119,13 @@ namespace SubtitleDownloader.Forms.Search
         {
 
         }
+
+        private void frmSearch_KeyUp(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter)
+            {
+                btnSearch.PerformClick();
+            }
+        }
     }
 }
